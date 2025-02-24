@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+
 import java.util.stream.Collectors;
 
 
@@ -109,6 +111,19 @@ public class Stream {
                 .filter(brand -> brand.equals("Audi"))
                 .collect(Collectors.toSet());
         System.out.println("Audi: " + filteredBrandsAudi);
+
+
+        // map filtered by prefix
+        List<String> prefixes = Arrays.asList("A", "F", "B");
+
+        Map<String, List<String>> groupedBrands = carBrands.stream()
+                .filter(brand -> prefixes.stream().anyMatch(prefix -> brand.startsWith(prefix)))
+                .collect(Collectors.groupingBy(brand -> prefixes.stream().filter(brand::startsWith).findFirst().get()));
+        groupedBrands.forEach((prefix, brands) ->
+                System.out.println("Brands starting with '" + prefix + "': " + brands));
+
+
+        logger.info("\n=====================\n");
 
 
     }
