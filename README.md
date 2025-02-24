@@ -22,6 +22,8 @@ Use these exercises to practice Java 17 features and best practices. No sample c
 
 3. **Collecting into Different Data Structures**  
    - Given a list of strings, collect subsets into a `List`, `Set`, or other collections based on certain conditions (e.g., string length, starting character).
+3.bis **Collecting into Map**  
+   - Given a list of strings, collect a subsets into a `Map` based on multiple starting characters.
 
 4. **Grouping and Partitioning**  
    - Given a list of objects (e.g., employees), group them by a specific field (e.g., department) and compute statistics (like counts or averages). Also, partition them into two categories based on a condition.
