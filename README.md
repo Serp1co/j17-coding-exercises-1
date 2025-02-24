@@ -92,5 +92,9 @@ Use a testing framework such as **JUnit 5** to verify that your implementations 
 
 ---
 
+## Need Some Guidance?
+
+Check out the [hints](./hints.md) file for optional tips and pointers on each exercise.
+
 **Happy Coding!**  
 Explore these exercises at your own pace, and feel free to expand or adapt them based on what you need to learn or teach.
