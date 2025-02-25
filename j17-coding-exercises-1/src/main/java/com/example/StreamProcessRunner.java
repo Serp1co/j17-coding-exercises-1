@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Map;
 
-// main class
+// main
 public class StreamProcessRunner {
     private static final Logger logger = LoggerFactory.getLogger(StreamProcessRunner.class);
 
