@@ -4,10 +4,7 @@ package com.example;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
 import java.util.Scanner;
 
@@ -21,7 +18,7 @@ public class ExceptionProcessRunner {
         processFileReader();
         processMultiCatch();
         scanner.close();
-
+        processTryWithResources();
     }
 
     private static void processNumbers(Scanner scanner) {
@@ -39,8 +36,6 @@ public class ExceptionProcessRunner {
                 System.out.println("Invalid input. Please enter valid integers.");
             }
         }
-
-
     }
 
     private static void processFileReader() {
@@ -69,6 +64,8 @@ public class ExceptionProcessRunner {
                     //sum
                     double sum = num1 + num2;
                     logger.info("The sum of {} and {} is: {}", num1, num2, sum);
+
+                    // double division per 0 = infinity
                     if (num2 == 0) {
                         throw new ArithmeticException("Cannot divide by zero! Please enter a valid divisor.");
                     }
@@ -86,6 +83,25 @@ public class ExceptionProcessRunner {
                 }
             }
         }
-
     }
+
+    private static void processTryWithResources() {
+        try (InputStream inputStream = ExceptionProcessRunner.class.getClassLoader().getResourceAsStream("books.txt")) {
+            assert inputStream != null;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                 BufferedWriter writer = new BufferedWriter(new FileWriter("outputfile.txt"))) {
+
+                String text;
+                while ((text = reader.readLine()) != null) {
+                    writer.write(text);
+                    writer.newLine();
+                }
+                logger.info("File is successfully copied to outputfile.txt");
+            }
+        } catch (IOException e) {
+            logger.error("Error reading or writing file: ", e);
+        }
+        logger.info("Resources are closed and content has been written into outputfile.txt");
+    }
+
 }
