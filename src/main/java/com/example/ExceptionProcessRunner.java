@@ -4,6 +4,11 @@ package com.example;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Scanner;
 
 public class ExceptionProcessRunner {
@@ -12,6 +17,7 @@ public class ExceptionProcessRunner {
     public static void main(String[] args) {
         logger.info("Exception process start");
         processNumbers();
+        processFileReader();
 
     }
 
@@ -24,12 +30,24 @@ public class ExceptionProcessRunner {
 
             try {
                 number = Integer.parseInt(scanner1.next());
-                logger.info(" valid : {}", number);
+                logger.info("you entered!");
                 break;
 
             } catch (NumberFormatException e) {
                 logger.error("NumberFormatException occurred, number is not valid.");
             }
+        }
+    }
+
+    private static void processFileReader() {
+        try (InputStream inputStream = ExceptionProcessRunner.class.getClassLoader().getResourceAsStream("books.txt")) {
+            assert inputStream != null;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                List<String> wordList = reader.lines().toList();
+                logger.info("Books Word list: {}", wordList);
+            }
+        } catch (IOException e) {
+            logger.error("Error reading file: ", e);
         }
     }
 }
