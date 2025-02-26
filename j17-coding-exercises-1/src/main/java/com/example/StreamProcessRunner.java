@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.io.File;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.IntStream;
+import java.util.concurrent.ForkJoinPool;
 
 // main
 public class StreamProcessRunner {
@@ -27,13 +29,15 @@ public class StreamProcessRunner {
         processEmployeeStatistics();
         processHeroes();
         processBooks();
-        // ES.7
+        // Es.7
         int[] minMax = IntStream.of(3, 7, 1, 9, 4, 2)
                 .boxed()
                 .collect(minMaxCollector()); // method
 
         logger.info("Min: " + minMax[0] + ", Max: " + minMax[1]);
-
+        // Es.8
+        processParallelStream();
+        processParallelFile();
     }
 
     private static void processNumbers() {
@@ -255,5 +259,34 @@ public class StreamProcessRunner {
         );
     }
 
+    //  Sequential Streams: Process elements in a sequential manner, one element at a time
+    //  Parallel Streams: Process elements in parallel, utilizing multiple CPU cores.
+    //  possible zombie thread
+    private static void processParallelStream() {
+        List<Integer> binaries = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
+        ForkJoinPool customPool = new ForkJoinPool(4); // numbers of threads
+
+        List<Integer> parallelB = customPool.submit(() ->
+                binaries.parallelStream()
+                        .filter(n -> n % 2 == 0)
+                        .sorted()
+                        .collect(Collectors.toList())
+        ).join();
+        logger.info("parallel stream: {}", parallelB);
+
+        customPool.shutdown(); // close threads
+    }
+
+    private static void processParallelFile() {
+        File file = new File("books.txt");
+        // try catch resource
+        try (Stream<String> linesFile = Files.lines(Path.of("books.txt"))) {
+            linesFile.parallel()
+                    .forEach(System.out::println);
+        } catch (IOException e) {
+            logger.error("Error reading file: ", e);
+        }
+
+    }
 }
