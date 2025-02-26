@@ -3,9 +3,8 @@ package com.example;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
-import java.io.File;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
@@ -185,61 +184,71 @@ public class StreamProcessRunner {
 
         // combining the hero's lists
         List<List<String>> listOfLists = Arrays.asList(Marvel, DC, WSJ);
-        logger.info("before flatMap: {}", listOfLists);
+        logger.info("Before flatMap: {}", listOfLists);
 
         // flat map
         List<String> listofHeroes = listOfLists.stream()
                 .flatMap(list -> list.stream())
                 .sorted() // order
                 .collect(Collectors.toList());
-        logger.info("after flatMap: {}", listofHeroes);
+        logger.info("After flatMap: {}", listofHeroes);
 
     }
 
     private static void processBooks() {
-        //es.6
-        // counts lines starting with 'I'
-        try (Stream<String> lines = Files.lines(Path.of("books.txt"))) {
+        // count lines starting with 'I'
+        try (InputStream inputStream = StreamProcessRunner.class.getClassLoader().getResourceAsStream("books.txt")) {
+            if (inputStream == null) {
+                logger.error("The file book.txt not found in resource folder.");
+                return;
+            }
 
-            long i = lines.filter(line -> line.startsWith("I"))
-                    .count();
-            logger.info("The count of lines starting with 'I' is: " + i);
-        } catch (IOException e) {
-
-            logger.error("Error reading file: ", e);
-        }
-
-
-        // Eliminate duplicates and filter by word length
-        try (Stream<String> lines = Files.lines(Path.of("books.txt"))) {
-            // create wordList
-            List<String> wordsList = lines
-                    .flatMap(line -> Stream.of(line.split("\\W+")))
-                    .collect(Collectors.toList());
-            logger.info("word list: {} ", wordsList);
-
-            // eliminate duplicates with Set
-            Set<String> wordSet = wordsList.stream()
-                    .collect(Collectors.toSet());
-            logger.info("eliminate duplicates: {}", wordSet);
-
-            //filtered by length
-            List<String> filteredByLength = wordsList.stream()
-                    .filter(word -> word.length() >= 6)
-                    .collect(Collectors.toList());
-            logger.info("words with length >= 6: {}", filteredByLength);
-
-            List<String> filteredBrandsByChar = wordsList.stream()
-                    .filter(word -> word.startsWith("S"))
-                    .collect(Collectors.toList());
-            logger.info("brands starts with S: {}", filteredBrandsByChar);
-
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                long count = reader.lines()
+                        .filter(line -> line.startsWith("I"))
+                        .count();
+                logger.info("The count of lines starting with 'I' is: {}", count);
+            }
         } catch (IOException e) {
             logger.error("Error reading file: ", e);
         }
 
+        // duplicates and filter by length
+        try (InputStream inputStream = StreamProcessRunner.class.getClassLoader().getResourceAsStream("books.txt")) {
+            if (inputStream == null) {
+                logger.error("The file book.txt not found in resource folder.");
+                return;
+            }
 
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                // Create wordList
+                List<String> wordsList = reader.lines()
+                        .flatMap(line -> Stream.of(line.split("\\W+")))
+                        .collect(Collectors.toList());
+                logger.info("Books Word list: {}", wordsList);
+
+                // Eliminate duplicates with Set
+                Set<String> wordSet = wordsList.stream()
+                        .collect(Collectors.toSet());
+                logger.info("Books Words without duplicates: {}", wordSet);
+
+                // filter by length
+                List<String> filteredByLength = wordsList.stream()
+                        .filter(word -> word.length() >= 6)
+                        .collect(Collectors.toList());
+                logger.info("Books Words with length >= 6: {}", filteredByLength);
+
+                // words with 'S'
+                List<String> filteredBrandsByChar = wordsList.stream()
+                        .filter(word -> word.startsWith("S"))
+                        .collect(Collectors.toList());
+                logger.info("Books Words starting with S: {}", filteredBrandsByChar);
+            }
+        } catch (IOException e) {
+            logger.error("Error reading file: ", e);
+        }
     }
+
 
     // Supplier, accumulator, combiner, finisher
     // Es .7
@@ -273,20 +282,28 @@ public class StreamProcessRunner {
                         .sorted()
                         .collect(Collectors.toList())
         ).join();
-        logger.info("parallel stream: {}", parallelB);
+        logger.info("Parallel stream: {}", parallelB);
 
         customPool.shutdown(); // close threads
     }
 
     private static void processParallelFile() {
-        File file = new File("books.txt");
-        // try catch resource
-        try (Stream<String> linesFile = Files.lines(Path.of("books.txt"))) {
-            linesFile.parallel()
-                    .forEach(System.out::println);
-        } catch (IOException e) {
-            logger.error("Error reading file: ", e);
+        // ClassLoader
+        InputStream inputStream = StreamProcessRunner.class.getClassLoader().getResourceAsStream("books.txt");
+
+        if (inputStream == null) {
+            logger.error("The file books.txt not found in resource folder.");
+            return;
         }
 
+        // try-with-resources
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            reader.lines()
+                    .parallel()
+                    .forEach(System.out::println);
+        } catch (IOException e) {
+            logger.error("Error file read: ", e);
+        }
     }
+
 }
