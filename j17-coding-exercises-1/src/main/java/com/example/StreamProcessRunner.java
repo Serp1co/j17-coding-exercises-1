@@ -8,13 +8,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
+import java.util.stream.Collector;
 import java.util.Set;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.stream.IntStream;
 
-// main class
+// main
 public class StreamProcessRunner {
     private static final Logger logger = LoggerFactory.getLogger(StreamProcessRunner.class);
 
@@ -25,6 +27,13 @@ public class StreamProcessRunner {
         processEmployeeStatistics();
         processHeroes();
         processBooks();
+        // ES.7
+        int[] minMax = IntStream.of(3, 7, 1, 9, 4, 2)
+                .boxed()
+                .collect(minMaxCollector()); // method
+
+        logger.info("Min: " + minMax[0] + ", Max: " + minMax[1]);
+
     }
 
     private static void processNumbers() {
@@ -52,7 +61,6 @@ public class StreamProcessRunner {
                 .map(n -> n * 3)
                 .collect(Collectors.toList());
         logger.info("Odd numbers * 3: {}", oddNumbers);
-        logger.info("\n=====================\n");
 
         // es.2
         List<Integer> numbers2 = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
@@ -228,5 +236,24 @@ public class StreamProcessRunner {
 
 
     }
+
+    // Supplier, accumulator, combiner, finisher
+    // Es .7
+    private static Collector<Integer, ?, int[]> minMaxCollector() {
+        return Collector.of(
+                () -> new int[]{Integer.MAX_VALUE, Integer.MIN_VALUE}, // conteiner for min max
+                (acc, val) -> { // update min max
+                    acc[0] = Math.min(acc[0], val);
+                    acc[1] = Math.max(acc[1], val);
+                },
+                (acc1, acc2) -> { // combine accumulators
+                    acc1[0] = Math.min(acc1[0], acc2[0]);
+                    acc1[1] = Math.max(acc1[1], acc2[1]);
+                    return acc1;
+                },
+                acc -> acc // result
+        );
+    }
+
 
 }

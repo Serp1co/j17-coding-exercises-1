@@ -1,7 +1,3 @@
 com\example\StreamProcessRunner.class
-com\example\Employee.class
-com\example\FlatMap.class
 com\example\App.class
-com\example\EmployeeStatistics.class
-com\example\Stream.class
-com\example\Book.class
+com\example\Employee.class
