@@ -15,10 +15,12 @@ public class ExceptionProcessRunner {
         logger.info("Exception process start");
         Scanner scanner = new Scanner(System.in);
         processNumbers(scanner);
+        processMultiCatch(scanner);
+        processCustomException(scanner);
         processFileReader();
-        processMultiCatch();
-        scanner.close();
         processTryWithResources();
+
+        scanner.close();
     }
 
     private static void processNumbers(Scanner scanner) {
@@ -27,7 +29,7 @@ public class ExceptionProcessRunner {
             System.out.println("Please digit a valid number: ");
 
             try {
-                double number = Integer.parseInt(scanner.next());
+                double number = Integer.parseInt(scanner.nextLine());
                 logger.info("you entered!");
                 break;
 
@@ -50,39 +52,38 @@ public class ExceptionProcessRunner {
         }
     }
 
-    private static void processMultiCatch() {
+    private static void processMultiCatch(Scanner scanner) {
         // try-with-resource not use finally or scanner.close()
-        try (Scanner scanner2 = new Scanner(System.in)) {
-            while (true) {
-                try {
-                    System.out.print("Enter the first number: ");
-                    double num1 = Integer.parseInt(scanner2.nextLine());
 
-                    System.out.print("Enter the second number: ");
-                    double num2 = Integer.parseInt(scanner2.nextLine());
+        while (true) {
+            try {
+                System.out.print("Enter the first number: ");
+                double num1 = Integer.parseInt(scanner.nextLine());
 
-                    //sum
-                    double sum = num1 + num2;
-                    logger.info("The sum of {} and {} is: {}", num1, num2, sum);
+                System.out.print("Enter the second number: ");
+                double num2 = Integer.parseInt(scanner.nextLine());
 
-                    // double division per 0 = infinity
-                    if (num2 == 0) {
-                        throw new ArithmeticException("Cannot divide by zero! Please enter a valid divisor.");
-                    }
-                    //division
-                    double division = num1 / num2;
-                    logger.info("The division of {} and {} is: {}", num1, num2, division);
+                //sum
+                double sum = num1 + num2;
+                logger.info("The sum of {} and {} is: {}", num1, num2, sum);
 
-                    break;
-
-                } catch (NumberFormatException e) {
-                    logger.error("NumberFormatException occurred: " + e.getMessage());
-                    System.out.println("Invalid input. Please enter valid integers.");
-                } catch (ArithmeticException e) {
-                    System.out.println(e.getMessage());
+                // double division per 0 = infinity
+                if (num2 == 0) {
+                    throw new ArithmeticException("Cannot divide by zero! Please enter a valid divisor.");
                 }
+                //division
+                double division = num1 / num2;
+                logger.info("The division of {} and {} is: {}", num1, num2, division);
+
+                break;
+
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter valid integers.");
+            } catch (ArithmeticException e) {
+                System.out.println(e.getMessage());
             }
         }
+
     }
 
     private static void processTryWithResources() {
@@ -104,4 +105,26 @@ public class ExceptionProcessRunner {
         logger.info("Resources are closed and content has been written into outputfile.txt");
     }
 
+    private static void processCustomException(Scanner scanner) {
+        while (true) {
+            System.out.println("Please enter a valid age: ");
+            try {
+                int age = Integer.parseInt(scanner.next());
+                if (age < 0) {
+                    throw new InvalidAgeException("Age cannot be negative: " + age);
+                }
+                if (age < 18 || age > 99) {
+                    throw new InvalidAgeException("Error, Please enter a valid age: " + age);
+                }
+                logger.info("Valid age entered: {}", age);
+                break;
+            } catch (NumberFormatException e) {
+                logger.error("NumberFormatException occurred: " + e.getMessage());
+                System.out.println("Invalid input. Please enter a valid age.");
+            } catch (InvalidAgeException e) {
+                logger.error("InvalidAgeException: " + e.getMessage());
+                System.out.println(e.getMessage());
+            }
+        }
+    }
 }
