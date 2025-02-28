@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class ExceptionProcessRunner {
     private static final Logger logger = LoggerFactory.getLogger(ExceptionProcessRunner.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         logger.info("Exception process start");
         Scanner scanner = new Scanner(System.in);
         processNumbers(scanner);
@@ -25,6 +25,8 @@ public class ExceptionProcessRunner {
         } catch (InvalidAgeException e) {
             System.out.println("Exception caught in main: " + e.getMessage());
         }
+        // processSuppressedE();
+        processWithSuppressed();
 
         scanner.close();
     }
@@ -169,5 +171,36 @@ public class ExceptionProcessRunner {
                 throw e; // handle in main
             }
         }
+    }
+
+    // basically used in try-with-resources
+    private static void processSuppressedE() throws IOException {
+        Throwable firstException = null;
+
+        // Open file
+        try (InputStream fileIn = ExceptionProcessRunner.class.getClassLoader().getResourceAsStream("Books.txt")) {
+            if (fileIn == null) {
+                throw new FileNotFoundException("File not found in resources!");
+            }
+            //simulate exception
+            throw new IOException("Simulated exception while processing file");
+
+        } catch (IOException e) {
+            logger.error("Main exception: {}", e.getMessage());
+            firstException = e;
+            throw e;  // rethrowing
+        }
+    }
+
+    private static void processWithSuppressed() throws IOException {
+        IOException mainException = new IOException("Main error occurred");
+
+        try {
+            throw new IOException("Secondary error during cleanup");
+        } catch (IOException suppressedException) {
+            mainException.addSuppressed(suppressedException);
+        }
+
+        throw mainException;
     }
 }
