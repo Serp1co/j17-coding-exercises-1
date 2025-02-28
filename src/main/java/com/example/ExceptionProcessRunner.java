@@ -20,6 +20,11 @@ public class ExceptionProcessRunner {
         processFileReader();
         processTryWithResources();
         processNestedTry();
+        try {
+            processRethrowing(scanner);
+        } catch (InvalidAgeException e) {
+            System.out.println("Exception caught in main: " + e.getMessage());
+        }
 
         scanner.close();
     }
@@ -140,6 +145,29 @@ public class ExceptionProcessRunner {
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Element at such index does not exists");
+        }
+    }
+
+    private static void processRethrowing(Scanner scanner) {
+        while (true) {
+            System.out.println("Please enter a valid age: ");
+            try {
+                int age = Integer.parseInt(scanner.next());
+                if (age < 0) {
+                    throw new InvalidAgeException("Age cannot be negative: " + age);
+                }
+                if (age < 18 || age > 99) {
+                    throw new InvalidAgeException("Error, Please enter a valid age: " + age);
+                }
+                logger.info("Valid age entered: {}", age);
+                break;
+            } catch (NumberFormatException e) {
+                logger.error("NumberFormatException occurred: " + e.getMessage());
+                System.out.println("Invalid input. Please enter a valid age.");
+            } catch (InvalidAgeException e) {
+                logger.error("InvalidAgeException: " + e.getMessage());
+                throw e; // handle in main
+            }
         }
     }
 }
