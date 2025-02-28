@@ -19,6 +19,7 @@ public class ExceptionProcessRunner {
         processCustomException(scanner);
         processFileReader();
         processTryWithResources();
+        processNestedTry();
 
         scanner.close();
     }
@@ -41,6 +42,7 @@ public class ExceptionProcessRunner {
     }
 
     private static void processFileReader() {
+        // try-with-resource not use finally or scanner.close()
         try (InputStream inputStream = ExceptionProcessRunner.class.getClassLoader().getResourceAsStream("books.txt")) {
             assert inputStream != null;
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
@@ -53,8 +55,6 @@ public class ExceptionProcessRunner {
     }
 
     private static void processMultiCatch(Scanner scanner) {
-        // try-with-resource not use finally or scanner.close()
-
         while (true) {
             try {
                 System.out.print("Enter the first number: ");
@@ -125,6 +125,21 @@ public class ExceptionProcessRunner {
                 logger.error("InvalidAgeException: " + e.getMessage());
                 System.out.println(e.getMessage());
             }
+        }
+    }
+
+    private static void processNestedTry() {
+        // nested instead multi blocks of catch
+        try {
+            int[] list = {1, 2, 3, 4, 5, 6, 7, 8};
+            System.out.println(list[5]);
+            try {
+                int x = list[12] / 0;
+            } catch (ArithmeticException e) {
+                System.out.println("Cannot divide by zero.");
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Element at such index does not exists");
         }
     }
 }
