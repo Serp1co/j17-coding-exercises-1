@@ -12,46 +12,34 @@ public class ExceptionProcessRunner {
     private static final Logger logger = LoggerFactory.getLogger(ExceptionProcessRunner.class);
 
     public static void main(String[] args) throws IOException {
-        logger.info("Exception process start");
+
         Scanner scanner = new Scanner(System.in);
-        processNumbers(scanner);
-        processMultiCatch(scanner);
-        processCustomException(scanner);
-        processFileReader();
-        processTryWithResources();
-        processNestedTry();
-        try {
-            processRethrowing(scanner);
-        } catch (InvalidAgeException e) {
-            System.out.println("Exception caught in main: " + e.getMessage());
-        }
-        // processSuppressedE();
-        processWithSuppressed();
+
 
         scanner.close();
     }
 
-    private static void processNumbers(Scanner scanner) {
-        // use scanner main
-        while (true) {
-            System.out.println("Please digit a valid number: ");
+    static boolean processNumbers(String input) {
+        try {
+            int number = Integer.parseInt(input);
+            logger.info("you entered!");
+            return true;
 
-            try {
-                double number = Integer.parseInt(scanner.nextLine());
-                logger.info("you entered!");
-                break;
-
-            } catch (NumberFormatException e) {
-                logger.error("NumberFormatException occurred, number is not valid.");
-                System.out.println("Invalid input. Please enter valid integers.");
-            }
+        } catch (NumberFormatException e) {
+            logger.error("NumberFormatException occurred, number is not valid.");
+            System.out.println("Invalid input. Please enter valid integers.");
+            return false;
         }
+
     }
 
-    private static void processFileReader() {
+    static void processFileReader(String filePath) {
         // try-with-resource not use finally or scanner.close()
-        try (InputStream inputStream = ExceptionProcessRunner.class.getClassLoader().getResourceAsStream("books.txt")) {
-            assert inputStream != null;
+        try (InputStream inputStream = ExceptionProcessRunner.class.getClassLoader().getResourceAsStream(filePath)) {
+            if (inputStream == null) {
+                logger.error("File not found: {}", filePath);
+                return;
+            }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                 List<String> wordList = reader.lines().sorted().toList();
                 logger.info("Books Word list: {}", wordList);
@@ -61,44 +49,39 @@ public class ExceptionProcessRunner {
         }
     }
 
-    private static void processMultiCatch(Scanner scanner) {
-        while (true) {
-            try {
-                System.out.print("Enter the first number: ");
-                double num1 = Integer.parseInt(scanner.nextLine());
-
-                System.out.print("Enter the second number: ");
-                double num2 = Integer.parseInt(scanner.nextLine());
-
-                //sum
-                double sum = num1 + num2;
-                logger.info("The sum of {} and {} is: {}", num1, num2, sum);
-
-                // double division per 0 = infinity
-                if (num2 == 0) {
-                    throw new ArithmeticException("Cannot divide by zero! Please enter a valid divisor.");
-                }
-                //division
-                double division = num1 / num2;
-                logger.info("The division of {} and {} is: {}", num1, num2, division);
-
-                break;
-
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter valid integers.");
-            } catch (ArithmeticException e) {
-                System.out.println(e.getMessage());
+    static boolean processMultiCatch(String num1Str, String num2Str) {
+        try {
+            double num1 = Double.parseDouble(num1Str);
+            double num2 = Double.parseDouble(num2Str);
+            //sum
+            double sum = num1 + num2;
+            logger.info("The sum of {} and {} is: {}", num1, num2, sum);
+            // double division per 0 = infinity
+            if (num2 == 0) {
+                throw new ArithmeticException("Cannot divide by zero! Please enter a valid divisor.");
             }
+            //division
+            double division = num1 / num2;
+            logger.info("The division of {} and {} is: {}", num1, num2, division);
+            return true;
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter valid integers.");
+            return false;
+        } catch (ArithmeticException e) {
+            logger.error("ArithmeticException {}", e.getMessage());
+            return false;
         }
 
     }
 
-    private static void processTryWithResources() {
-        try (InputStream inputStream = ExceptionProcessRunner.class.getClassLoader().getResourceAsStream("books.txt")) {
-            assert inputStream != null;
+    static void processTryWithResources(String inputFile, String outputFile) {
+        try (InputStream inputStream = ExceptionProcessRunner.class.getClassLoader().getResourceAsStream(inputFile)) {
+            if (inputStream == null) {
+                logger.error("inputFile not found: {}", inputFile);
+                return;
+            }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                 BufferedWriter writer = new BufferedWriter(new FileWriter("outputfile.txt"))) {
-
+                 BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
                 String text;
                 while ((text = reader.readLine()) != null) {
                     writer.write(text);
@@ -112,73 +95,79 @@ public class ExceptionProcessRunner {
         logger.info("Resources are closed and content has been written into outputfile.txt");
     }
 
-    private static void processCustomException(Scanner scanner) {
-        while (true) {
-            System.out.println("Please enter a valid age: ");
-            try {
-                int age = Integer.parseInt(scanner.next());
-                if (age < 0) {
-                    throw new InvalidAgeException("Age cannot be negative: " + age);
-                }
-                if (age < 18 || age > 99) {
-                    throw new InvalidAgeException("Error, Please enter a valid age: " + age);
-                }
-                logger.info("Valid age entered: {}", age);
-                break;
-            } catch (NumberFormatException e) {
-                logger.error("NumberFormatException occurred: " + e.getMessage());
-                System.out.println("Invalid input. Please enter a valid age.");
-            } catch (InvalidAgeException e) {
-                logger.error("InvalidAgeException: " + e.getMessage());
-                System.out.println(e.getMessage());
+    static boolean processCustomException(String input) {
+        try {
+            int age = Integer.parseInt(input);
+            if (age < 0) {
+                throw new InvalidAgeException("Age cannot be negative: " + age);
             }
+            if (age < 18 || age > 99) {
+                throw new InvalidAgeException("Error, Please enter a valid age: " + age);
+            }
+            logger.info("Valid age entered: {}", age);
+            return true;
+
+        } catch (NumberFormatException e) {
+            logger.error("NumberFormatException occurred: {}", e.getMessage());
+            System.out.println("Invalid input. Please enter a valid age.");
+            return false;
+        } catch (InvalidAgeException e) {
+            logger.error("InvalidAgeException: {}", e.getMessage());
+            return false;
         }
+
     }
 
-    private static void processNestedTry() {
+    static boolean processNestedTry(int[] list, int index1, int index2) {
         // nested instead multi blocks of catch
         try {
-            int[] list = {1, 2, 3, 4, 5, 6, 7, 8};
-            System.out.println(list[5]);
+            if (index1 >= list.length || index1 < 0) {
+                throw new ArrayIndexOutOfBoundsException("Index1 out of bounds.");
+            }
+
+            System.out.println("Element at index " + index1 + ": " + list[index1]);
             try {
-                int x = list[12] / 0;
+                if (index2 == 0) {
+                    throw new ArithmeticException("Cannot divide by zero.");
+                }
+                int result = list[index1] / index2;
+                System.out.println("Result of division: " + result);
+                return true;
             } catch (ArithmeticException e) {
-                System.out.println("Cannot divide by zero.");
+                logger.error("ArithmeticException: {}", e.getMessage(), e);
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("Element at such index does not exists");
+            logger.error("ArrayIndexOutOfBoundsException message: {}", e.getMessage());
+        } catch (NumberFormatException e) {
+            logger.error("NumberFormatException message: ", e);
         }
+        return false;
     }
 
-    private static void processRethrowing(Scanner scanner) {
-        while (true) {
-            System.out.println("Please enter a valid age: ");
-            try {
-                int age = Integer.parseInt(scanner.next());
-                if (age < 0) {
-                    throw new InvalidAgeException("Age cannot be negative: " + age);
-                }
-                if (age < 18 || age > 99) {
-                    throw new InvalidAgeException("Error, Please enter a valid age: " + age);
-                }
-                logger.info("Valid age entered: {}", age);
-                break;
-            } catch (NumberFormatException e) {
-                logger.error("NumberFormatException occurred: " + e.getMessage());
-                System.out.println("Invalid input. Please enter a valid age.");
-            } catch (InvalidAgeException e) {
-                logger.error("InvalidAgeException: " + e.getMessage());
-                throw e; // handle in main
+    static boolean processRethrowing(String input) {
+        try {
+            int age = Integer.parseInt(input);
+            if (age < 0) {
+                throw new InvalidAgeException("Age cannot be negative: " + age);
             }
+            if (age < 18 || age > 99) {
+                throw new InvalidAgeException("Invalid age: " + age);
+            }
+            logger.info("Valid age: {}", age);
+            return true;
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid age.");
+            return false;
+        } catch (InvalidAgeException e) {
+            logger.error("InvalidAgeException message: {}", e.getMessage());
+            throw e; // handle in main
         }
     }
 
     // basically used in try-with-resources
-    private static void processSuppressedE() throws IOException {
-        Throwable firstException = null;
-
+    static void processSuppressedE(String filePath) throws IOException {
         // Open file
-        try (InputStream fileIn = ExceptionProcessRunner.class.getClassLoader().getResourceAsStream("Books.txt")) {
+        try (InputStream fileIn = ExceptionProcessRunner.class.getClassLoader().getResourceAsStream(filePath)) {
             if (fileIn == null) {
                 throw new FileNotFoundException("File not found in resources!");
             }
@@ -186,13 +175,12 @@ public class ExceptionProcessRunner {
             throw new IOException("Simulated exception while processing file");
 
         } catch (IOException e) {
-            logger.error("Main exception: {}", e.getMessage());
-            firstException = e;
+            logger.error("Main IOException message: {}", e.getMessage());
             throw e;  // rethrowing
         }
     }
 
-    private static void processWithSuppressed() throws IOException {
+    static void processWithSuppressed() throws IOException {
         IOException mainException = new IOException("Main error occurred");
 
         try {
@@ -200,7 +188,6 @@ public class ExceptionProcessRunner {
         } catch (IOException suppressedException) {
             mainException.addSuppressed(suppressedException);
         }
-
         throw mainException;
     }
 }

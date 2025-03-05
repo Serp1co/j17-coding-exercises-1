@@ -4,14 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import java.util.stream.Collector;
-import java.util.Set;
-import java.util.List;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.stream.IntStream;
 import java.util.concurrent.ForkJoinPool;
 
@@ -31,7 +27,7 @@ public class StreamProcessRunner {
                 .boxed()
                 .collect(minMaxCollector()); // method
 
-        logger.info("Min: " + minMax[0] + ", Max: " + minMax[1]);
+        logger.info("Min: {}, Max: {}", minMax[0], minMax[1]);
         // Es.8
         processParallelStream();
         processParallelFile();
@@ -54,27 +50,27 @@ public class StreamProcessRunner {
 
         List<Integer> evenNumbers = numbers.stream()
                 .filter(n -> n % 2 == 0)
-                .collect(Collectors.toList());
+                .toList();
         logger.info("Even numbers: {}", evenNumbers);
 
         List<Integer> oddNumbers = numbers.stream()
                 .filter(n -> n % 2 != 0)
                 .map(n -> n * 3)
-                .collect(Collectors.toList());
+                .toList();
         logger.info("Odd numbers * 3: {}", oddNumbers);
 
         // es.2
         List<Integer> numbers2 = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         List<Integer> evenNumbers2 = numbers2.stream()
                 .filter(n -> n % 2 == 0)
-                .collect(Collectors.toList());
+                .toList();
         Integer sum = evenNumbers2.stream()
-                .reduce(0, (a, b) -> a + b);
+                .reduce(0, Integer::sum);
         logger.info("sum even numbers: {}", sum);
 
         List<Integer> oddNumbers2 = numbers2.stream()
                 .filter(n -> n % 2 != 0)
-                .collect(Collectors.toList());
+                .toList();
         Integer product = oddNumbers2.stream()
                 .reduce(1, (a, b) -> a * b);
         logger.info("product odd numbers: {}", product);
@@ -107,13 +103,13 @@ public class StreamProcessRunner {
         // filtered by length
         List<String> filteredBrandsByLength = carBrands.stream()
                 .filter(brand -> brand.length() <= 6)
-                .collect(Collectors.toList());
+                .toList();
         logger.info("brands filtered by length: {}", filteredBrandsByLength);
 
         // filtered by char
         List<String> filteredBrandsByCharA = carBrands.stream()
                 .filter(brand -> brand.startsWith("A"))
-                .collect(Collectors.toList());
+                .toList();
         logger.info("brands starts with A: {}", filteredBrandsByCharA);
 
 
@@ -134,8 +130,13 @@ public class StreamProcessRunner {
         List<String> prefixes = Arrays.asList("A", "F", "B");
 
         Map<String, List<String>> groupedBrands = carBrands.stream()
-                .filter(brand -> prefixes.stream().anyMatch(prefix -> brand.startsWith(prefix)))
-                .collect(Collectors.groupingBy(brand -> prefixes.stream().filter(brand::startsWith).findFirst().get()));
+                .filter(brand -> prefixes.stream().anyMatch(brand::startsWith))
+                .collect(Collectors.groupingBy(brand -> prefixes.stream()
+                        .filter(brand::startsWith)
+                        .findFirst()
+                        .orElse("")
+                ));
+        groupedBrands.remove("");
         groupedBrands.forEach((prefix, brands) ->
                 System.out.println("Brands starting with '" + prefix + "': " + brands));
 
@@ -153,7 +154,7 @@ public class StreamProcessRunner {
                 new Employee("Gino", "Finance", 5200),
                 new Employee("Sandro", "IT", 6500),
                 new Employee("Leila", "IT", 5600),
-                new Employee("Giorgia", "HR", 5800)
+                new Employee("Giorgio", "HR", 5800)
         );
 
         // grouped by department
@@ -161,10 +162,10 @@ public class StreamProcessRunner {
                 .collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting()));
         logger.info("Counts of departments: {}", departmentCounts);
 
-        // grouped by avarage salary
+        // grouped by average salary
         Map<String, Double> averageSalaries = employees.stream()
                 .collect(Collectors.groupingBy(Employee::getDepartment, Collectors.averagingDouble(Employee::getSalary)));
-        logger.info("Avarage salary: {}", averageSalaries);
+        logger.info("Average salary: {}", averageSalaries);
 
         // partition based on seniority
         Map<Boolean, List<Employee>> partitionBySeniority = employees.stream()
@@ -176,8 +177,8 @@ public class StreamProcessRunner {
 
     private static void processHeroes() {
         //es .5
-        List<String> Marvel = Arrays.asList("Hulk", "Spiderman", "Thor", "Ironman");
-        List<String> DC = Arrays.asList("Wwoman", "Flash", "Superman", "Batman");
+        List<String> Marvel = Arrays.asList("Hulk", "Spider man", "Thor", "Ironman");
+        List<String> DC = Arrays.asList("Wonder Woman", "Flash", "Superman", "Batman");
         List<String> WSJ = Arrays.asList("Naruto", "Luffy", "Saitama", "Goku");
 
         // combining the hero's lists
@@ -185,11 +186,11 @@ public class StreamProcessRunner {
         logger.info("Before flatMap: {}", listOfLists);
 
         // flat map
-        List<String> listofHeroes = listOfLists.stream()
-                .flatMap(list -> list.stream())
+        List<String> listHeroes = listOfLists.stream()
+                .flatMap(Collection::stream)
                 .sorted() // order
-                .collect(Collectors.toList());
-        logger.info("After flatMap: {}", listofHeroes);
+                .toList();
+        logger.info("After flatMap: {}", listHeroes);
 
     }
 
@@ -222,24 +223,23 @@ public class StreamProcessRunner {
                 // Create wordList
                 List<String> wordsList = reader.lines()
                         .flatMap(line -> Stream.of(line.split("\\W+")))
-                        .collect(Collectors.toList());
+                        .toList();
                 logger.info("Books Word list: {}", wordsList);
 
                 // Eliminate duplicates with Set
-                Set<String> wordSet = wordsList.stream()
-                        .collect(Collectors.toSet());
+                Set<String> wordSet = new HashSet<>(wordsList);
                 logger.info("Books Words without duplicates: {}", wordSet);
 
                 // filter by length
                 List<String> filteredByLength = wordsList.stream()
                         .filter(word -> word.length() >= 6)
-                        .collect(Collectors.toList());
+                        .toList();
                 logger.info("Books Words with length >= 6: {}", filteredByLength);
 
                 // words with 'S'
                 List<String> filteredBrandsByChar = wordsList.stream()
                         .filter(word -> word.startsWith("S"))
-                        .collect(Collectors.toList());
+                        .toList();
                 logger.info("Books Words starting with S: {}", filteredBrandsByChar);
             }
         } catch (IOException e) {
@@ -252,7 +252,7 @@ public class StreamProcessRunner {
     // Es .7
     private static Collector<Integer, ?, int[]> minMaxCollector() {
         return Collector.of(
-                () -> new int[]{Integer.MAX_VALUE, Integer.MIN_VALUE}, // conteiner for min max
+                () -> new int[]{Integer.MAX_VALUE, Integer.MIN_VALUE}, // container for min max
                 (acc, val) -> { // update min max
                     acc[0] = Math.min(acc[0], val);
                     acc[1] = Math.max(acc[1], val);
