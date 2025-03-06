@@ -1,39 +1,29 @@
-package com.example;
+package com.example.runner;
 
-
+import com.example.exceptions.InvalidAgeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.List;
-import java.util.Scanner;
 
 public class ExceptionProcessRunner {
     private static final Logger logger = LoggerFactory.getLogger(ExceptionProcessRunner.class);
 
-    public static void main(String[] args) throws IOException {
-
-        Scanner scanner = new Scanner(System.in);
-
-
-        scanner.close();
-    }
-
-    static boolean processNumbers(String input) {
+    public boolean processNumbers(String input) {
         try {
-            int number = Integer.parseInt(input);
+            Integer.parseInt(input);
             logger.info("you entered!");
             return true;
 
         } catch (NumberFormatException e) {
             logger.error("NumberFormatException occurred, number is not valid.");
-            System.out.println("Invalid input. Please enter valid integers.");
             return false;
         }
 
     }
 
-    static void processFileReader(String filePath) {
+    public void processFileReader(String filePath) {
         // try-with-resource not use finally or scanner.close()
         try (InputStream inputStream = ExceptionProcessRunner.class.getClassLoader().getResourceAsStream(filePath)) {
             if (inputStream == null) {
@@ -49,7 +39,7 @@ public class ExceptionProcessRunner {
         }
     }
 
-    static boolean processMultiCatch(String num1Str, String num2Str) {
+    public boolean processMultiCatch(String num1Str, String num2Str) {
         try {
             double num1 = Double.parseDouble(num1Str);
             double num2 = Double.parseDouble(num2Str);
@@ -74,7 +64,7 @@ public class ExceptionProcessRunner {
 
     }
 
-    static void processTryWithResources(String inputFile, String outputFile) {
+    public void processTryWithResources(String inputFile, String outputFile) {
         try (InputStream inputStream = ExceptionProcessRunner.class.getClassLoader().getResourceAsStream(inputFile)) {
             if (inputStream == null) {
                 logger.error("inputFile not found: {}", inputFile);
@@ -95,14 +85,14 @@ public class ExceptionProcessRunner {
         logger.info("Resources are closed and content has been written into outputfile.txt");
     }
 
-    static boolean processCustomException(String input) {
+    public boolean processCustomException(String input) {
         try {
             int age = Integer.parseInt(input);
             if (age < 0) {
-                throw new InvalidAgeException("Age cannot be negative: " + age);
+                throw new InvalidAgeException("Age cannot be negative", age);
             }
             if (age < 18 || age > 99) {
-                throw new InvalidAgeException("Error, Please enter a valid age: " + age);
+                throw new InvalidAgeException("Error, Please enter a valid age", age);
             }
             logger.info("Valid age entered: {}", age);
             return true;
@@ -118,7 +108,7 @@ public class ExceptionProcessRunner {
 
     }
 
-    static boolean processNestedTry(int[] list, int index1, int index2) {
+    public boolean processNestedTry(int[] list, int index1, int index2) {
         // nested instead multi blocks of catch
         try {
             if (index1 >= list.length || index1 < 0) {
@@ -144,14 +134,14 @@ public class ExceptionProcessRunner {
         return false;
     }
 
-    static boolean processRethrowing(String input) {
+    public boolean processRethrowing(String input) {
         try {
             int age = Integer.parseInt(input);
             if (age < 0) {
-                throw new InvalidAgeException("Age cannot be negative: " + age);
+                throw new InvalidAgeException("Age cannot be negative", age);
             }
             if (age < 18 || age > 99) {
-                throw new InvalidAgeException("Invalid age: " + age);
+                throw new InvalidAgeException("Invalid age", age);
             }
             logger.info("Valid age: {}", age);
             return true;
@@ -180,7 +170,7 @@ public class ExceptionProcessRunner {
         }
     }
 
-    static void processWithSuppressed() throws IOException {
+    public void processWithSuppressed() throws IOException {
         IOException mainException = new IOException("Main error occurred");
 
         try {
