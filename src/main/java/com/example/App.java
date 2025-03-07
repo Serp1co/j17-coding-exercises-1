@@ -145,8 +145,8 @@ public class App {
             }
         }
         // es.8
-        // runnerE.processSuppressedE("books.txt");
-        // runnerE.processWithSuppressed();
+        // processSuppressedE("books.txt");
+        runnerE.processWithSuppressed();
 
         // TestProcessRunner
         TestProcessRunner runnerT = new TestProcessRunner();
