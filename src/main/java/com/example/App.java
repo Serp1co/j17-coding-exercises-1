@@ -58,6 +58,10 @@ public class App {
 
     private static final List<Integer> parallelList = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 1);
 
+    private static final List<Integer> numbers = Arrays.asList(8, 4, 45, 65, 84, 1, 65, 123);
+
+    private static final List<String> games = Arrays.asList("Crash", "Crash", "Crash 3", "Crash 2", "Crash 2", "Crash 3", "Crash 4", "Crash Bash", "CTR");
+
 
     public static void main(String[] args) throws IOException {
         // StreamProcess
@@ -73,10 +77,14 @@ public class App {
         runnerS.processHeroes(Comics);
         // es.6
         runnerS.processFiles("books.txt");
-        // es.7
+        // es.7 Custom Collector
+        int[] minMax = runnerS.calculateMinMax(numbers);
+        LOG.info("Min: {}, Max: {}", minMax[0], minMax[1]);
         // es.8
         runnerS.processParallelStream(parallelList);
-        runnerS.processFiles("books.txt");
+        runnerS.processParallelFile("books.txt");
+        // extra
+        runnerS.wordsFrequency(games);
 
 
         // ExceptionProcess

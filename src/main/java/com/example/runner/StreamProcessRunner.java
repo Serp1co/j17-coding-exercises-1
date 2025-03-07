@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.*;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import java.util.stream.Collector;
@@ -14,16 +13,6 @@ import java.util.concurrent.ForkJoinPool;
 
 public class StreamProcessRunner {
     private static final Logger LOG = LoggerFactory.getLogger(StreamProcessRunner.class);
-
-    public static void main(String[] args) {
-        // Es.7
-        int[] minMax = IntStream.of(3, 7, 1, 9, 4, 2)
-                .boxed()
-                .collect(minMaxCollector()); // method
-
-        LOG.info("Min: {}, Max: {}", minMax[0], minMax[1]);
-
-    }
 
     public void processStreamNumbers(List<Integer> numbersList) {
         // es.1-2
@@ -157,8 +146,13 @@ public class StreamProcessRunner {
     }
 
     // Supplier, accumulator, combiner, finisher
-    // Es .7
-    private static Collector<Integer, ?, int[]> minMaxCollector() {
+    // Es .7 Custom Collector
+    public int[] calculateMinMax(List<Integer> numbers) {
+        return numbers.stream()
+                .collect(minMaxCollector());
+    }
+
+    public static Collector<Integer, ?, int[]> minMaxCollector() {
         return Collector.of(
                 () -> new int[]{Integer.MAX_VALUE, Integer.MIN_VALUE}, // container for min max
                 (acc, val) -> { // update min max
@@ -177,18 +171,21 @@ public class StreamProcessRunner {
     //  Sequential Streams: Process elements in a sequential manner, one element at a time
     //  Parallel Streams: Process elements in parallel, utilizing multiple CPU cores.
     //  possible zombie thread
+    @SuppressWarnings("resource")
     public void processParallelStream(List<Integer> parallelList) {
-        ForkJoinPool customPool = new ForkJoinPool(2); // numbers of threads
-
-        List<Integer> parallel = customPool.submit(() ->
-                parallelList.parallelStream()
-                        .filter(n -> n % 2 == 0)
-                        .sorted()
-                        .toList()
-        ).join();
-        LOG.info("Parallel stream: {}", parallel);
-
-        customPool.shutdown(); // close threads
+        ForkJoinPool customPool = new ForkJoinPool(4);
+        try {
+            // numbers of threads
+            List<Integer> parallel = customPool.submit(() ->
+                    parallelList.parallelStream() // transform
+                            .filter(n -> n % 2 == 0)
+                            .sorted()
+                            .toList()
+            ).join();
+            LOG.info("Parallel stream: {}", parallel);
+        } finally {
+            customPool.shutdown(); // close threads
+        }
     }
 
     public void processParallelFile(String filePath) {
@@ -207,6 +204,27 @@ public class StreamProcessRunner {
         } catch (IOException e) {
             LOG.error("Error file read: ", e);
         }
+    }
+
+    // extra
+    // Custom collector, Frequency Map Collector
+    public void wordsFrequency(List<String> games) {
+        Map<String, Long> frequencyMap = games.stream()
+                .collect(toFrequencyMap());
+        LOG.info("Frequency map: {}", frequencyMap);
+    }
+
+    public static <T> Collector<T, ?, Map<T, Long>> toFrequencyMap() {
+        return Collector.of(
+                HashMap::new, // supplier
+                (map, element) -> map.put(element, map.getOrDefault(element, 0L) + 1), // accumulator
+                (map1, map2) -> { // combiner
+                    map2.forEach((key, count) ->
+                            map1.merge(key, count, Long::sum)
+                    );
+                    return map1;
+                }
+        );
     }
 
 }
