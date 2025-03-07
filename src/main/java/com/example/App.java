@@ -4,6 +4,7 @@ import com.example.exceptions.InvalidAgeException;
 import com.example.models.Employee;
 import com.example.runner.ExceptionProcessRunner;
 import com.example.runner.StreamProcessRunner;
+import com.example.runner.TestProcessRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,11 +145,21 @@ public class App {
             }
         }
         // es.8
-        // processSuppressedE("books.txt");
-        runnerE.processWithSuppressed();
+        // runnerE.processSuppressedE("books.txt");
+        // runnerE.processWithSuppressed();
+
+        // TestProcessRunner
+        TestProcessRunner runnerT = new TestProcessRunner();
+        while (true) {
+            System.out.println("Enter a even number:");
+            Integer input = Integer.valueOf(scanner.nextLine());
+            if (runnerT.isNumberEven(input)) {
+                break;
+            }
+        }
 
         scanner.close();
-
-
     }
+
+
 }
