@@ -157,6 +157,13 @@ public class App {
                 break;
             }
         }
+        while (true) {
+            System.out.println("Enter a odd number:");
+            Integer input = Integer.valueOf(scanner.nextLine());
+            if (runnerT.isNumberOdd(input)) {
+                break;
+            }
+        }
 
         scanner.close();
     }

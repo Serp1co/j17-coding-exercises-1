@@ -10,7 +10,17 @@ public class TestProcessRunner {
         try {
             return input % 2 == 0;
         } catch (NumberFormatException e) {
-            LOG.error("Error{}", input);
+            LOG.error("Error even: {}", input);
+            return false;
+        }
+
+    }
+
+    public boolean isNumberOdd(Integer input) {
+        try {
+            return input % 2 != 0;
+        } catch (NumberFormatException e) {
+            LOG.error("Error odd: {}", input);
             return false;
         }
 
