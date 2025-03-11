@@ -1,6 +1,6 @@
 package com.example;
 
-import com.example.runner.CarBrandsResult;
+import com.example.record.CarBrandsResult;
 import com.example.runner.StreamProcessRunner;
 import org.junit.jupiter.api.*;
 

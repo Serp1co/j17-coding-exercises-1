@@ -1,6 +1,7 @@
 package com.example.runner;
 
 import com.example.models.Employee;
+import com.example.record.CarBrandsResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

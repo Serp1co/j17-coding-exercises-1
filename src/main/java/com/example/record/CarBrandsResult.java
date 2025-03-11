@@ -1,4 +1,4 @@
-package com.example.runner;
+package com.example.record;
 
 import java.util.List;
 import java.util.Map;

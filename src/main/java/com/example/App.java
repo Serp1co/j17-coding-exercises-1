@@ -5,10 +5,12 @@ import com.example.models.Employee;
 import com.example.runner.ExceptionProcessRunner;
 import com.example.runner.StreamProcessRunner;
 import com.example.runner.TestProcessRunner;
+import com.example.runner.ViewCountRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -65,6 +67,17 @@ public class App {
 
 
     public static void main(String[] args) throws IOException {
+
+        // ViewCount
+        ViewCountRunner vc1 = new ViewCountRunner(new BigInteger("14500000"));
+        LOG.info("vc1 : {}", vc1);
+        ViewCountRunner vc2 = new ViewCountRunner(new BigInteger("15000"));
+        LOG.info("vc2 : {}", vc2);
+        ViewCountRunner vc3 = new ViewCountRunner(new BigInteger("1000"));
+        LOG.info("vc3 : {}", vc3);
+        ViewCountRunner vc4 = new ViewCountRunner(new BigInteger("-30"));
+        LOG.info("vc4 : {}", vc4);
+
         // StreamProcess
         LOG.info("Streams exercises start");
         StreamProcessRunner runnerS = new StreamProcessRunner();
@@ -166,6 +179,7 @@ public class App {
         }
 
         scanner.close();
+
     }
 
 
