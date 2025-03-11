@@ -1,6 +1,7 @@
 package com.example;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AppTest {
@@ -8,5 +9,8 @@ class AppTest {
     @Test
     void testMethod() {
         assertTrue(true);
+
     }
+
+
 }
