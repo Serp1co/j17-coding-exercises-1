@@ -14,7 +14,7 @@ import java.util.concurrent.ForkJoinPool;
 public class StreamProcessRunner {
     private static final Logger LOG = LoggerFactory.getLogger(StreamProcessRunner.class);
 
-    public void processStreamNumbers(List<Integer> numbersList) {
+    public Map<String, Object> processStreamNumbers(List<Integer> numbersList) {
         // es.1-2
         LOG.info("numbers list: {}", numbersList);
         List<Integer> evenNumbers = numbersList.stream()
@@ -36,9 +36,18 @@ public class StreamProcessRunner {
                 .reduce(1, (a, b) -> a * b);
         LOG.info("product odd numbers: {}", product);
 
+        // return results in a map
+        Map<String, Object> results = new HashMap<>();
+        results.put("evenNumbers", evenNumbers);
+        results.put("sum evenNumbers", sum);
+        results.put("oddNumbers", oddNumbers);
+        results.put("product EvenNumbers", product);
+
+        return results;
+
     }
 
-    public void processCarBrands(List<String> carBrands) {
+    public CarBrandsResult processCarBrands(List<String> carBrands) {
         // es.3
         LOG.info("car brands: {}", carBrands);
         // filtered by length
@@ -67,12 +76,12 @@ public class StreamProcessRunner {
                 .filter(brand -> prefixes.stream().anyMatch(brand::startsWith))
                 .collect(Collectors.groupingBy(brand -> prefixes.stream()
                         .filter(brand::startsWith)
-                        .findFirst()
-                        .orElse("")
+                        .collect(Collectors.joining(","))
                 ));
-        groupedBrands.remove("");
         groupedBrands.forEach((prefix, brands) ->
                 System.out.println("Brands starting with '" + prefix + "': " + brands));
+
+        return new CarBrandsResult(filteredBrandsByLength, filteredBrandsByCharA, filteredBrandsSet, filteredBrandsAudi, groupedBrands);
 
     }
 
